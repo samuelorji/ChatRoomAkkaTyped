@@ -2,3 +2,4 @@
 project
 *.class
 target
+src/main/scala/example
