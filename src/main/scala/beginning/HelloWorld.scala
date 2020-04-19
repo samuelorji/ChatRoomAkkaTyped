@@ -91,7 +91,7 @@ object TestNamedActor {
 }
 
 
-object main extends App {
+object main{
   val system = ActorSystem(TestNamedActor("samuel"), "j")
 
 

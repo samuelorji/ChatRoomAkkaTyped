@@ -49,11 +49,6 @@ object ChatRoomMaster {
         Behaviors.same
 
     }
-
-
-    //first create all rooms
-
-
   }
 
   private def getRoomPipe(

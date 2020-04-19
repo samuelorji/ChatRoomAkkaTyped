@@ -1,9 +1,8 @@
 package chatroom
 package rooms
 
-import akka.actor.typed.{ActorRef, Behavior}
 import akka.actor.typed.scaladsl.Behaviors
-import chatroom.clients.Client.ChatRoomMessage
+import akka.actor.typed.{ActorRef, Behavior}
 
 object FootballRoom {
   import clients.Client._
@@ -39,7 +38,7 @@ object FootballRoom {
 
         clients.get(pipe).map { client =>
           chatMaster ! ClientRemoved(client)
-          footballRoom(clients.removed(pipe))
+          footballRoom(clients - pipe )
         }.getOrElse(Behaviors.same)
 
 

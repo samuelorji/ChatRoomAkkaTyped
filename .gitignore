@@ -2,4 +2,4 @@
 project
 *.class
 target
-src/main/scala/example
+src/main/learn

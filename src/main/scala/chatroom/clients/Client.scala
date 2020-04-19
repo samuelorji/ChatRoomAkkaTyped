@@ -3,8 +3,7 @@ package chatroom.clients
 import akka.NotUsed
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, Behavior}
-import chatroom.clients.Client.{ChatRoom, ChatRoomMessage, ClientMessages, EndSession, Football, GetSession, MasterMessages, MessagePosted, NotificationReceived, PostMessage, Quit, SessionEnded, SessionGranted, SportMessages, UnProcessedMessage}
-
+import chatroom.clients.Client._
 object Client {
   trait ClientMessages
 
@@ -43,32 +42,14 @@ object Client {
   case class BasketBallMessage(msg: String) extends SportMessages
 
 
-  private def logInfo(msg: String, args: String*)(implicit ctx: ActorContext[ClientMessages]): Unit = {
-    ctx.log.info(msg, args)
-
-  }
-
   def apply(chatRoomMaster: ActorRef[MasterMessages],chatRoomPipe : Option[ActorRef[ChatRoomMessage]] = None): Behavior[ClientMessages] =
     Behaviors.setup { ctx =>
-      chatRoomMaster ! GetSession("ClientFootball", Football, ctx.self)
+     // chatRoomMaster ! GetSession("ClientFootball", Football, ctx.self)
 
       def clientBehavior(handle : Option[ActorRef[ChatRoomMessage]]) : Behavior[ClientMessages] = Behaviors.receiveMessage {
         case SessionGranted(handler) =>
 
           handler ! PostMessage(FootballMessage("Hello from this client 1"), ctx.self)
-          handler ! PostMessage(FootballMessage("Hello from this client 2"), ctx.self)
-          handler ! PostMessage(FootballMessage("Hello from this client 3"), ctx.self)
-          handler ! PostMessage(FootballMessage("Hello from this client 4"), ctx.self)
-          handler ! PostMessage(FootballMessage("Hello from this client 5"), ctx.self)
-          handler ! PostMessage(FootballMessage("Hello from this client 6"), ctx.self)
-          handler ! PostMessage(FootballMessage("Hello from this client 7"), ctx.self)
-          handler ! PostMessage(BasketBallMessage("Hello from this client 8"), ctx.self)
-          handler ! PostMessage(FootballMessage("Hello from this client 9"), ctx.self)
-          handler ! PostMessage(FootballMessage("Hello from this client 10"), ctx.self)
-          handler ! PostMessage(FootballMessage("Hello from this client 11"), ctx.self)
-          handler ! PostMessage(FootballMessage("Hello from this client 12"), ctx.self)
-          handler ! PostMessage(FootballMessage("Hello from this client 13"), ctx.self)
-
 
           chatRoomMaster ! EndSession(handler,Football)
           clientBehavior(Some(handler))
@@ -89,12 +70,12 @@ object Client {
 
 
         case NotificationReceived(from, message) =>
-          ctx.log.info("{} just posted {}", from, message)
+          println(s"$from just posted $message")
           //logInfo("{} just posted {}", from,message)
           Behaviors.same
 
         case UnProcessedMessage(message, room) =>
-          ctx.log.info(s"Cannot post {} to {}", message, room.toString)
+          println(s"Cannot post $message to ${room.toString}")
           Behaviors.same
 
         case MessagePosted(msg) =>
@@ -137,7 +118,7 @@ abstract class Client(chatRoomMaster : ActorRef[MasterMessages], connectTo : Cha
         Behaviors.same
 
       case UnProcessedMessage(message, room) =>
-        ctx.log.info(s"Cannot post {} to {}", message, room.toString)
+        println(s"Cannot post $message to ${room.toString}")
         Behaviors.same
 
       case MessagePosted(msg) =>
@@ -157,7 +138,7 @@ abstract class Client(chatRoomMaster : ActorRef[MasterMessages], connectTo : Cha
 
   def sendToRoom(msg : SportMessages) : Unit = {
     if(roomHandler.isEmpty){
-      Thread.sleep(50)
+      Thread.sleep(200)
       //should use a future for this instead
     }
     if(internalActor.isDefined) {
@@ -167,7 +148,7 @@ abstract class Client(chatRoomMaster : ActorRef[MasterMessages], connectTo : Cha
 
 
   protected def onUnprocessedMessage(msg : String, room : ChatRoom) : Unit  = {
-    println(s"Cannot post {} to {}", msg, room.toString)
+    println(s"Cannot post $msg to ${room.toString}", msg, room.toString)
 
   }
 
